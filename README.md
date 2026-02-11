@@ -1,3 +1,5 @@
 # This project contains ratelimiter algorithms
 
-need to set up redis first : https://github.com/anirudhjamakay/redis
+setup needed
+docker with kubernetes enabled: https://docs.docker.com/desktop/setup/install/windows-install/
+redis: https://github.com/anirudhjamakay/redis
