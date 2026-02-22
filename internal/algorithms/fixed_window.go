@@ -31,7 +31,7 @@ func (f *FixedWindow) Allow(ctx context.Context, key string) (bool, error) {
 	}
 
 	if count == 1 {
-		err = f.store.Expire(ctx, key, f.window)
+		err = f.store.Expire(ctx, redisKey, f.window)
 		if err != nil {
 			return false, err
 		}
