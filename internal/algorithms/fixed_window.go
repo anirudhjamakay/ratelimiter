@@ -23,7 +23,10 @@ func NewFixedWindow(s store.Store, limit int64, window time.Duration) *FixedWind
 }
 
 func (f *FixedWindow) Allow(ctx context.Context, key string) (bool, error) {
-	redisKey := fmt.Sprintf("rate:%s", key)
+
+	now := time.Now().Unix() / int64(f.window.Seconds())
+
+	redisKey := fmt.Sprintf("rate:%s:%d", key, now)
 
 	count, err := f.store.Incr(ctx, redisKey, f.window)
 	if err != nil {
@@ -31,7 +34,7 @@ func (f *FixedWindow) Allow(ctx context.Context, key string) (bool, error) {
 	}
 
 	if count == 1 {
-		err = f.store.Expire(ctx, key, f.window)
+		err = f.store.Expire(ctx, redisKey, f.window)
 		if err != nil {
 			return false, err
 		}
