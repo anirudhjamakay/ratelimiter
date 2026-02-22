@@ -1,11 +1,13 @@
 #!/bin/bash
 
-set -e  # stop on error
+set -e
 
 APP_NAME="ratelimiter"
 IMAGE_NAME="ratelimiter:latest"
 DEPLOYMENT_NAME="ratelimiter"
 NAMESPACE="default"
+LOCAL_PORT=8080
+REMOTE_PORT=8080
 
 GOOS=linux GOARCH=amd64 go build -o app ./cmd/server
 docker build -t $IMAGE_NAME .
@@ -18,11 +20,23 @@ if [[ $CONTEXT == *"minikube"* ]]; then
 elif [[ $CONTEXT == *"kind"* ]]; then
     kind load docker-image $IMAGE_NAME
 else
-    echo "Docker Desktop Kubernetes (no extra load needed)"
+    echo "Using Docker Desktop Kubernetes"
 fi
 
 kubectl rollout restart deployment/$DEPLOYMENT_NAME -n $NAMESPACE
 
 kubectl rollout status deployment/$DEPLOYMENT_NAME -n $NAMESPACE
+
+pkill -f "kubectl port-forward.*$LOCAL_PORT" || true
+
+kubectl port-forward deployment/$DEPLOYMENT_NAME $LOCAL_PORT:$REMOTE_PORT -n $NAMESPACE > portforward.log 2>&1 &
+
+sleep 2
+
+echo "Port-forward running"
+echo ""
+echo "Access your API at:"
+echo "http://localhost:$LOCAL_PORT/hello"
+echo ""
 
 kubectl logs -f deployment/$DEPLOYMENT_NAME -n $NAMESPACE
