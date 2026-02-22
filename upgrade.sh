@@ -27,8 +27,6 @@ kubectl rollout restart deployment/$DEPLOYMENT_NAME -n $NAMESPACE
 
 kubectl rollout status deployment/$DEPLOYMENT_NAME -n $NAMESPACE
 
-pkill -f "kubectl port-forward.*$LOCAL_PORT" || true
-
 kubectl port-forward deployment/$DEPLOYMENT_NAME $LOCAL_PORT:$REMOTE_PORT -n $NAMESPACE > portforward.log 2>&1 &
 
 sleep 2
